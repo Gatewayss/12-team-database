@@ -1,4 +1,5 @@
 const inquirer = require('inquirer');
+const mysql = require('mysql2');
 
 const firstQuestion = [
     {
@@ -8,6 +9,13 @@ const firstQuestion = [
         type: 'list'
     }
 ]
+
+const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    database: 'team_db',
+    password: 'steph'
+  });
 
 function startApplication() {
     return inquirer.prompt(firstQuestion)
