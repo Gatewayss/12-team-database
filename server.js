@@ -1,5 +1,6 @@
 const inquirer = require('inquirer');
 const mysql = require('mysql2');
+let inProgress = true;
 
 const firstQuestion = [
     {
@@ -11,18 +12,24 @@ const firstQuestion = [
 ]
 
 const connection = mysql.createConnection({
-    host: 'localhost',
+    host: '127.0.0.1',
     user: 'root',
     database: 'team_db',
     password: 'steph'
-  });
+});
 
-function startApplication() {
-    return inquirer.prompt(firstQuestion)
-        .then((answers) => {
-            console.log(answers);
-            // startApplication()
-        })
+async function startApplication() {
+    let inProgress = true;
+    while (inProgress) {
+        const answers = await inquirer.prompt(firstQuestion)
+        console.log(answers);
+        switch (answers.action) {
+            case 'Quit':
+                inProgress = false;
+                connection.end();
+                break;
+        }
+    }
 };
 
 startApplication()
