@@ -12,7 +12,7 @@ const firstQuestion = [
     {
         name: 'action',
         message: 'What would you like to do?',
-        choices: ['Add Employee', 'Update Employee', 'View All Roles', 'Add Role', 'View All Departments', 'Add Department', 'Quit'],
+        choices: ['Add Employee', 'Update Employees Role', 'View All Roles', 'Add Role', 'View All Departments', 'Add Department', 'Quit'],
         type: 'list'
     }
 ]
@@ -107,12 +107,53 @@ function addEmployee() {
         })
     })
 })
-}
+};
+
+function updateEmployeeRole() {
+    connection.promise().query(`SELECT * FROM employee`)
+    .then(([rows]) => {
+        let employees = rows;
+        const employeeChoices = employees.map(({ id, first_name}) => ({
+            name: first_name,
+            value: id,
+        }));
+    connection.promise().query(`SELECT * FROM role`)
+    .then(([rows]) => {
+        let roles = rows;
+        const roleChoices = roles.map(({ id, title }) => ({
+            name: title,
+            value: id
+        }));
+
+        inquirer.prompt([
+            {
+                type: 'list',
+                name: 'employeeID',
+                message: 'Which employee would you like to update?',
+                choices: employeeChoices
+            },
+            {
+                type: 'list',
+                name: 'newRole',
+                message: 'Which role would you like to update?',
+                choices: roleChoices
+            }
+        ]).then(employee => {
+            connection.promise().query(`UPDATE employee SET role_id = ${employee.newRole} WHERE id = ${employee.employeeID}`)
+                .then(() => console.log(`\nEmployee was updated to the database!\n`))
+                .then(() => startApplication())
+        })
+    })
+})
+};
 
 function startApplication() {
         inquirer.prompt(firstQuestion)
         .then(answers => {
         switch (answers.action) {
+            case 'Update Employees Role':
+                updateEmployeeRole()
+                break;
             case 'Add Employee':
                 addEmployee()
                 break;
