@@ -13,7 +13,7 @@ const firstQuestion = [
     {
         name: 'action',
         message: 'What would you like to do?',
-        choices: ['Add Employee', 'Update Employees Role', 'View All Roles', 'Add Role', 'View All Departments', 'Add Department', 'Quit'],
+        choices: ['Add Employee', 'Update Employees Role', 'View All Roles', 'View All Employees', 'Add Role', 'View All Departments', 'Add Department', 'Quit'],
         type: 'list'
     }
 ];
@@ -79,7 +79,7 @@ function addEmployee() {
                         value: id,
                     }));
 
-// adds the none object to the array 
+                    // adds the none object to the array 
                     connection.promise().query(`SELECT * FROM employee WHERE manager_id IS NOT NULL`)
                         .then(([rows]) => {
                             let managers = rows;
@@ -115,13 +115,13 @@ function addEmployee() {
                                     choices: managerChoices
                                 }
                             ]).then(employee => {
-                                    connection.promise().query(
-                                        "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)",
-                                        [employee.firstName, employee.lastName, employee.empRole, employee.managerID]
-                                    )
+                                connection.promise().query(
+                                    "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)",
+                                    [employee.firstName, employee.lastName, employee.empRole, employee.managerID]
+                                )
                                     .then(() => console.log(`\n${employee.firstName} was added to the database!\n`))
                                     .then(() => startApplication())
-                                })
+                            })
                         })
                 })
         });
@@ -204,6 +204,11 @@ function startApplication() {
                             console.log(results);
                             startApplication()
                         });
+                    break;
+                case 'View All Employees':
+                    connection.query("SELECT e.id AS employee_id, e.first_name, e.last_name, r.title AS job_title, d.name AS department, r.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager_name FROM employee e INNER JOIN role r ON e.role_id = r.id INNER JOIN department d ON r.department_id = d.id LEFT JOIN employee m ON e.manager_id = m.id;", function (err, results) {
+                        console.log(results);
+                    }).then(() => startApplication())
                     break;
                 case 'Quit':
                     connection.end();
