@@ -45,11 +45,45 @@ const newRole = [
     }
 ];
 
+const newEmployee = [
+    {
+        name: 'firstName', 
+        message: "What's the first name of the employee?",
+        type: 'input'
+    }, 
+    {
+        name: 'lastName', 
+        message: "What's the last name of the employee",
+        type: 'input'
+    },
+    {
+        name: 'empRole', 
+        message: "What role is this employee", 
+        choices: []
+    },
+    {
+        name: 'managerID', 
+        message: "Who's the manager?",
+        choices: []
+    }
+];
+
 async function startApplication() {
     let inProgress = true;
     while (inProgress) {
         const answers = await inquirer.prompt(firstQuestion)
         switch (answers.action) {
+            case 'Add Employee': 
+                const newEmpQuestions = await inquirer.prompt(newEmployee)
+                const firstName = newEmpQuestions.firstName;
+                const lastName = newEmpQuestions.lastName;
+                const empRole = newEmpQuestions.empRole;
+                const manager = newEmpQuestions.managerID
+                connection.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ('${firstName, lastName, empRole, manager}')`, function (err, results) {
+                    console.log(`\n\n ${firstName} was added!\n`);
+                    startApplication()
+                });
+                break;
             case 'Add Role':
                 const newRoleQuestion = await inquirer.prompt(newRole)
                 const roleTitle = newRoleQuestion.title;
