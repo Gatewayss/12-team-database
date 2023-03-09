@@ -8,4 +8,5 @@ INSERT INTO
 VALUES ('job', 3000.00, 1), ('host', 5454.00, 2);
 
 INSERT INTO employee (first_name, last_name, role_id, manager_id) 
-VALUES ('John', 'coolguy', 1);
+VALUES ('John', 'coolguy', 1, NULL),
+        ('bob', 'awesome', 2, 1);

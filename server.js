@@ -59,43 +59,62 @@ function addRole() {
 
 };
 
-const newEmployee = [
-    {
-        name: 'firstName',
-        message: "What's the first name of the employee?",
-        type: 'input'
-    },
-    {
-        name: 'lastName',
-        message: "What's the last name of the employee",
-        type: 'input'
-    },
-    {
-        name: 'empRole',
-        message: "What role is this employee",
-        choices: []
-    },
-    {
-        name: 'managerID',
-        message: "Who's the manager?",
-        choices: []
-    }
-];
+function addEmployee() {
+    connection.promise().query(`SELECT * FROM role`)
+    .then(([rows]) => {
+        let roles = rows;
+        const roleChoices = roles.map(({ id, title }) => ({
+            name: title,
+            value: id
+        }));
 
-async function startApplication() {
+        connection.promise().query(`SELECT * FROM employee WHERE manager_id IS NOT NULL`)
+        .then(([rows]) => {
+            let managers = rows;
+            const managerChoices = managers.map(({ id, first_name}) => ({
+                name: first_name,
+                value: id,
+            }));
+
+        inquirer.prompt([
+            {
+                name: 'firstName',
+                message: "What's the first name of the employee?",
+                type: 'input'
+            },
+            {
+                name: 'lastName',
+                message: "What's the last name of the employee",
+                type: 'input'
+            },
+            {
+                type: 'list',
+                name: 'empRole',
+                message: "What role is this employee",
+                choices: roleChoices
+            },
+            {
+                type: 'list',
+                name: 'managerID',
+                message: "Who's the manager?",
+                choices: managerChoices
+            }
+        ])
+        .then(employee => {
+            connection.promise().query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ('${employee.firstName}', '${employee.lastName}', '${employee.empRole}', '${employee.managerID}')`)
+                .then(() => console.log(`\n${employee.firstName} was added to the database!\n`))
+                .then(() => startApplication())
+        })
+    })
+})
+}
+
+function startApplication() {
         inquirer.prompt(firstQuestion)
         .then(answers => {
         switch (answers.action) {
             case 'Add Employee':
-                const newEmpQuestions = inquirer.prompt(newEmployee)
-                const firstName = newEmpQuestions.firstName;
-                const lastName = newEmpQuestions.lastName;
-                const empRole = newEmpQuestions.empRole;
-                const manager = newEmpQuestions.managerID
-                connection.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ('${firstName, lastName, empRole, manager}')`, function (err, results) {
-                    console.log(`\n\n ${firstName} was added!\n`);
-                    startApplication()
-                });
+                addEmployee()
                 break;
             case 'Add Role':
                 addRole();
