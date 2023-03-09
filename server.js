@@ -78,7 +78,7 @@ function addEmployee() {
                         name: first_name,
                         value: id,
                     }));
-                    
+
 // adds the none object to the array 
                     connection.promise().query(`SELECT * FROM employee WHERE manager_id IS NOT NULL`)
                         .then(([rows]) => {
@@ -192,7 +192,7 @@ function startApplication() {
                         });
                     break;
                 case 'View All Roles':
-                    connection.query('SELECT id, title FROM role',
+                    connection.query('SELECT * FROM role',
                         function (err, results) {
                             console.log(results);
                             startApplication()
