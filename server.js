@@ -1,6 +1,5 @@
 const inquirer = require('inquirer');
 const mysql = require('mysql2');
-let inProgress = true;
 
 const connection = mysql.createConnection({
     host: '127.0.0.1',
@@ -26,55 +25,69 @@ const newDepartment = [
     }
 ];
 
-const newRole = [
-    {
-        name: 'title',
-        message: "What's the title of the new role?",
-        type: 'input'
-    },
-    {
-        name: 'salary',
-        message: "What is the salary for this position?",
-        type: 'input'
-    },
-    {
-        name: 'depID',
-        message: "What the department this role belongs to?",
-        type: 'list',
-        choices: []
-    }
-];
+function addRole() {
+    connection.promise().query(`SELECT * FROM department`)
+        .then(([rows]) => {
+            let departments = rows;
+            const departmentChoices = departments.map(({ id, name }) => ({
+                name: name,
+                value: id
+            }));
+
+            inquirer.prompt([
+                {
+                    name: "title",
+                    message: "What is the name of the role?"
+                },
+                {
+                    name: "salary",
+                    message: "What is the salary of the role?"
+                },
+                {
+                    type: "list",
+                    name: "department_id",
+                    message: "Which department does the role belong to?",
+                    choices: departmentChoices
+                }
+            ])
+                .then(role => {
+                    connection.promise().query(`INSERT INTO role (title, salary, department_id) VALUES ('${role.title}', ${role.salary},'${role.department_id}')`)
+                        .then(() => console.log(`Added new role to the database`))
+                        .then(() => startApplication())
+                })
+        })
+
+};
 
 const newEmployee = [
     {
-        name: 'firstName', 
+        name: 'firstName',
         message: "What's the first name of the employee?",
         type: 'input'
-    }, 
+    },
     {
-        name: 'lastName', 
+        name: 'lastName',
         message: "What's the last name of the employee",
         type: 'input'
     },
     {
-        name: 'empRole', 
-        message: "What role is this employee", 
+        name: 'empRole',
+        message: "What role is this employee",
         choices: []
     },
     {
-        name: 'managerID', 
+        name: 'managerID',
         message: "Who's the manager?",
         choices: []
     }
 ];
 
 async function startApplication() {
-    let inProgress = true;
-    while (inProgress) {
-        const answers = await inquirer.prompt(firstQuestion)
+        inquirer.prompt(firstQuestion)
+        .then(answers => {
         switch (answers.action) {
-            case 'Add Employee': 
-                const newEmpQuestions = await inquirer.prompt(newEmployee)
+            case 'Add Employee':
+                const newEmpQuestions = inquirer.prompt(newEmployee)
                 const firstName = newEmpQuestions.firstName;
                 const lastName = newEmpQuestions.lastName;
                 const empRole = newEmpQuestions.empRole;
@@ -85,17 +98,10 @@ async function startApplication() {
                 });
                 break;
             case 'Add Role':
-                const newRoleQuestion = await inquirer.prompt(newRole)
-                const roleTitle = newRoleQuestion.title;
-                const roleSalary = newRoleQuestion.salary;
-                const roleID = newRoleQuestion.depID;
-                connection.query(`INSERT INTO role (title, salary, department_id) VALUES ('${roleTitle, roleSalary,roleID}')`, function (err, results) {
-                    console.log(`\n\n ${roleTitle} role was added!\n`);
-                    startApplication()
-                });
+                addRole();
                 break;
             case 'Add Department':
-                const newDepQuestion = await inquirer.prompt(newDepartment)
+                const newDepQuestion = inquirer.prompt(newDepartment)
                 const newDep = newDepQuestion.newDepartment;
                 connection.query(`INSERT INTO department (name) 
                 VALUES ('${newDep}')`, function (err, results) {
@@ -118,11 +124,10 @@ async function startApplication() {
                     });
                 break;
             case 'Quit':
-                inProgress = false;
                 connection.end();
                 break;
         }
-    }
+    })
 };
 
 startApplication()
