@@ -1,3 +1,4 @@
+// Required npm's
 const inquirer = require('inquirer');
 const mysql = require('mysql2');
 
@@ -15,7 +16,7 @@ const firstQuestion = [
         choices: ['Add Employee', 'Update Employees Role', 'View All Roles', 'Add Role', 'View All Departments', 'Add Department', 'Quit'],
         type: 'list'
     }
-]
+];
 
 const newDepartment = [
     {
@@ -25,6 +26,7 @@ const newDepartment = [
     }
 ];
 
+// Queries everything the debarment table and maps out a new object with all the relevant info
 function addRole() {
     connection.promise().query(`SELECT * FROM department`)
         .then(([rows]) => {
@@ -52,13 +54,14 @@ function addRole() {
             ])
                 .then(role => {
                     connection.promise().query(`INSERT INTO role (title, salary, department_id) VALUES ('${role.title}', ${role.salary},'${role.department_id}')`)
-                        .then(() => console.log(`Added new role to the database`))
+                        .then(() => console.log(`\nAdded ${role.title} to the database\n`))
                         .then(() => startApplication())
                 })
         })
 
 };
 
+// Grabs the current roles and managers for the new employee
 function addEmployee() {
     connection.promise().query(`SELECT * FROM role`)
     .then(([rows]) => {
@@ -71,7 +74,7 @@ function addEmployee() {
         connection.promise().query(`SELECT * FROM employee WHERE manager_id IS NOT NULL`)
         .then(([rows]) => {
             let managers = rows;
-            const managerChoices = managers.map(({ id, first_name}) => ({
+            const managerChoices = managers.map(({ id, first_name }) => ({
                 name: first_name,
                 value: id,
             }));
@@ -109,6 +112,7 @@ function addEmployee() {
 })
 };
 
+// Grabs the employees role and replaces it with the new one
 function updateEmployeeRole() {
     connection.promise().query(`SELECT * FROM employee`)
     .then(([rows]) => {
@@ -147,6 +151,7 @@ function updateEmployeeRole() {
 })
 };
 
+// Based on the first question response the different case situations begin 
 function startApplication() {
         inquirer.prompt(firstQuestion)
         .then(answers => {
@@ -161,12 +166,14 @@ function startApplication() {
                 addRole();
                 break;
             case 'Add Department':
-                const newDepQuestion = inquirer.prompt(newDepartment)
-                const newDep = newDepQuestion.newDepartment;
-                connection.query(`INSERT INTO department (name) 
-                VALUES ('${newDep}')`, function (err, results) {
-                    console.log(`\n\n ${newDep} department was added!\n`);
-                    startApplication()
+                inquirer.prompt(newDepartment)
+                .then(department => {
+                    const newDep = department.newDepartment;
+                    connection.query(`INSERT INTO department (name) 
+                    VALUES ('${newDep}')`, function (err, results) {
+                        console.log(`\n${newDep} department was added!\n`);
+                        startApplication()
+                    });
                 });
                 break;
             case 'View All Roles':
@@ -190,4 +197,5 @@ function startApplication() {
     })
 };
 
+// init application
 startApplication()
