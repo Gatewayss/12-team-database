@@ -1,6 +1,7 @@
 // Required npm's
 const inquirer = require('inquirer');
 const mysql = require('mysql2');
+const cTable = require('console.table');
 
 const connection = mysql.createConnection({
     host: '127.0.0.1',
@@ -194,20 +195,20 @@ function startApplication() {
                 case 'View All Roles':
                     connection.query('SELECT * FROM role',
                         function (err, results) {
-                            console.log(results);
+                            console.table(results);
                             startApplication()
                         });
                     break;
                 case 'View All Departments':
                     connection.query('SELECT * FROM department',
                         function (err, results) {
-                            console.log(results);
+                            console.table(results);
                             startApplication()
                         });
                     break;
                 case 'View All Employees':
                     connection.query("SELECT e.id AS employee_id, e.first_name, e.last_name, r.title AS job_title, d.name AS department, r.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager_name FROM employee e INNER JOIN role r ON e.role_id = r.id INNER JOIN department d ON r.department_id = d.id LEFT JOIN employee m ON e.manager_id = m.id;", function (err, results) {
-                        console.log(results);
+                        console.table(results);
                         startApplication()
                     })
                     break;
