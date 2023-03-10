@@ -5,6 +5,8 @@ This command line application allows team managers to interact with their employ
 
 To add the required dependencies for this application you must run ``npm install`` in your terminal. Then run ``node server.js`` to start the application.
 
+![app demo](assets/app.gif)
+
 ## Usage 
 Simply choose the option you would like to do and follow the prompts. Once completed you will be notified that you inputs have been updated, changes, or added. 
 
