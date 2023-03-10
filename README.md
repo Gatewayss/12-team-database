@@ -11,7 +11,7 @@ To add the required dependencies for this application you must run ``npm install
 Simply choose the option you would like to do and follow the prompts. Once completed you will be notified that you inputs have been updated, changes, or added. 
 
 ## Links 
-- [Walkthrough Video](https://drive.google.com/file/d/1HJ086dsYEZH7Wsg0v26gbJuVos06chI_/view)
+- [Walkthrough Video](https://drive.google.com/file/d/10QwSDEWOl2G2TSedi79yn4t7ryZCSncc/view)
 - [MIT](https://opensource.org/license/mit/)
 
 ## Questions?
